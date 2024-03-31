@@ -1,5 +1,5 @@
 {
-  "short_name": "Nina",
+  "short_name": "NinaC",
   "name": "Nina Carducci Photographe",
   "icons": [
     {
@@ -44,5 +44,17 @@
   "scope": "./",
   "theme_color": "#333333",
   "description": "Découvrez l'art captivant de la photographie à travers l'objectif de Nina Carducci, photographe basée à Bordeaux.",
-  "lang": "fr"
+  "lang": "fr",
+  "screenshots": [
+    {
+      "src": "assets/images/screenshots/screenshotMobile",
+      "sizes": "640x360",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/images/screenshots/screenshotDesktop",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ]
 }
