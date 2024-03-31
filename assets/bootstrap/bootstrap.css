@@ -1151,30 +1151,6 @@ progress {
   transition: transform 0.6s ease-in-out;
 }
 
-.carousel-item img {
-  object-fit: cover;
-  height: auto;
-  max-height: 500px;
-}
-
-@media (min-width: 1200px) {
-  .carousel-item img {
-    max-height: 600px;
-  }
-}
-
-@media (max-width: 768px) {
-  .carousel-item img {
-    max-height: 350px;
-  }
-}
-
-@media (max-width: 576px) {
-  .carousel-item img {
-    max-height: 250px;
-  }
-}
-
 .carousel-item.active,
 .carousel-item-next,
 .carousel-item-prev {
