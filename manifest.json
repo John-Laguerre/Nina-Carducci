@@ -47,12 +47,12 @@
   "lang": "fr",
   "screenshots": [
     {
-      "src": "assets/images/screenshots/screenshotMobile",
+      "src": "assets/images/screenshots/screenshotMobile.png",
       "sizes": "640x360",
       "type": "image/png"
     },
     {
-      "src": "assets/images/screenshots/screenshotDesktop",
+      "src": "assets/images/screenshots/screenshotDesktop.png",
       "sizes": "1280x720",
       "type": "image/png"
     }
