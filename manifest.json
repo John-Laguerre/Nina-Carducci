@@ -54,12 +54,12 @@
   "lang": "fr",
   "screenshots": [
     {
-      "src": "assets/images/screenshots/screenshotMobile.png",
+      "src": "assets/images/screenshots/screenshotsMobile.webp",
       "sizes": "640x360",
       "type": "image/png"
     },
     {
-      "src": "assets/images/screenshots/screenshotDesktop.png",
+      "src": "assets/images/screenshots/screenshotsDesktop.webp",
       "sizes": "1280x720",
       "type": "image/png"
     }
