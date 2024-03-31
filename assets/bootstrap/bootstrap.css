@@ -1152,9 +1152,27 @@ progress {
 }
 
 .carousel-item img {
-  object-fit: cover; /* Couvre la zone du parent sans déformation */
-  height: auto; /* La hauteur est initialement réglée sur auto */
-  max-height: 500px; /* Hauteur maximale pour éviter que les images soient trop grandes */
+  object-fit: cover;
+  height: auto;
+  max-height: 500px;
+}
+
+@media (min-width: 1200px) {
+  .carousel-item img {
+    max-height: 600px;
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel-item img {
+    max-height: 350px;
+  }
+}
+
+@media (max-width: 576px) {
+  .carousel-item img {
+    max-height: 250px;
+  }
 }
 
 .carousel-item.active,
