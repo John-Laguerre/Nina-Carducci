@@ -1151,6 +1151,12 @@ progress {
   transition: transform 0.6s ease-in-out;
 }
 
+.carousel-item img {
+  object-fit: cover; /* Couvre la zone du parent sans déformation */
+  height: auto; /* La hauteur est initialement réglée sur auto */
+  max-height: 500px; /* Hauteur maximale pour éviter que les images soient trop grandes */
+}
+
 .carousel-item.active,
 .carousel-item-next,
 .carousel-item-prev {
