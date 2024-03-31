@@ -1,19 +1,18 @@
 {
-    "short_name": "Nina",
-    "name": "Nina Carducci Photographe",
-    "icons": [
-      {
-        "src": "assets/images/nina.webp",
-        "sizes": "72x72 96x96 128x128 144x144 152x152 192x192 384x384 512x512",
-        "type": "image/webp"
-      }
-    ],
-    "start_url": "./",
-    "background_color": "#ffffff",
-    "display": "standalone",
-    "scope": "/Nina-Carducci/",
-    "theme_color": "#333333",
-    "description": "Découvrez l'art captivant de la photographie à travers l'objectif de Nina Carducci, photographe basée à Bordeaux.",
-    "lang": "fr"
-  }
-  
+  "short_name": "Nina",
+  "name": "Nina Carducci Photographe",
+  "icons": [
+    {
+      "src": "assets/images/nina.webp",
+      "sizes": "72x72 96x96 128x128 144x144 152x152 192x192 384x384 512x512",
+      "type": "image/webp"
+    }
+  ],
+  "start_url": "./",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "./",
+  "theme_color": "#333333",
+  "description": "Découvrez l'art captivant de la photographie à travers l'objectif de Nina Carducci, photographe basée à Bordeaux.",
+  "lang": "fr"
+}
