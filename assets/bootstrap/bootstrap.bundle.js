@@ -2082,12 +2082,29 @@
     return placement.split('-')[0];
   }
 
-  function getBoundingClientRect(element,
+  // import { isHTMLElement } from './instanceOf';
+  function getBoundingClientRect(element, // eslint-disable-next-line unused-imports/no-unused-vars
   includeScale) {
 
     var rect = element.getBoundingClientRect();
     var scaleX = 1;
-    var scaleY = 1;
+    var scaleY = 1; // FIXME:
+    // `offsetWidth` returns an integer while `getBoundingClientRect`
+    // returns a float. This results in `scaleX` or `scaleY` being
+    // non-1 when it should be for elements that aren't a full pixel in
+    // width or height.
+    // if (isHTMLElement(element) && includeScale) {
+    //   const offsetHeight = element.offsetHeight;
+    //   const offsetWidth = element.offsetWidth;
+    //   // Do not attempt to divide by 0, otherwise we get `Infinity` as scale
+    //   // Fallback to 1 in case both values are `0`
+    //   if (offsetWidth > 0) {
+    //     scaleX = rect.width / offsetWidth || 1;
+    //   }
+    //   if (offsetHeight > 0) {
+    //     scaleY = rect.height / offsetHeight || 1;
+    //   }
+    // }
 
     return {
       width: rect.width / scaleX,
@@ -2127,18 +2144,19 @@
   }
 
   function contains(parent, child) {
-    var rootNode = child.getRootNode && child.getRootNode();
+    var rootNode = child.getRootNode && child.getRootNode(); // First, attempt with faster native method
 
     if (parent.contains(child)) {
       return true;
-    } 
+    } // then fallback to custom implementation with Shadow DOM support
     else if (rootNode && isShadowRoot(rootNode)) {
         var next = child;
 
         do {
           if (next && parent.isSameNode(next)) {
             return true;
-          } 
+          } // $FlowFixMe[prop-missing]: need a better way to handle this...
+
 
           next = next.parentNode || next.host;
         } while (next);
@@ -2157,7 +2175,8 @@
   }
 
   function getDocumentElement(element) {
-    return ((isElement(element) ? element.ownerDocument :
+    // $FlowFixMe[incompatible-return]: assume body is always available
+    return ((isElement(element) ? element.ownerDocument : // $FlowFixMe[prop-missing]
     element.document) || window.document).documentElement;
   }
 
@@ -2166,23 +2185,27 @@
       return element;
     }
 
-    return (
-      element.assignedSlot ||
-      element.parentNode || (
-      isShadowRoot(element) ? element.host : null) ||
-      getDocumentElement(element)
+    return (// this is a quicker (but less type safe) way to save quite some bytes from the bundle
+      // $FlowFixMe[incompatible-return]
+      // $FlowFixMe[prop-missing]
+      element.assignedSlot || // step into the shadow DOM of the parent of a slotted node
+      element.parentNode || ( // DOM Element detected
+      isShadowRoot(element) ? element.host : null) || // ShadowRoot detected
+      // $FlowFixMe[incompatible-call]: HTMLElement is a Node
+      getDocumentElement(element) // fallback
 
     );
   }
 
   function getTrueOffsetParent(element) {
-    if (!isHTMLElement(element) ||
+    if (!isHTMLElement(element) || // https://github.com/popperjs/popper-core/issues/837
     getComputedStyle$1(element).position === 'fixed') {
       return null;
     }
 
     return element.offsetParent;
-  }
+  } // `.offsetParent` reports `null` for fixed elements, while absolute elements
+  // return the containing block
 
 
   function getContainingBlock(element) {
@@ -2190,7 +2213,7 @@
     var isIE = navigator.userAgent.indexOf('Trident') !== -1;
 
     if (isIE && isHTMLElement(element)) {
-
+      // In IE 9, 10 and 11 fixed elements containing block is always established by the viewport
       var elementCss = getComputedStyle$1(element);
 
       if (elementCss.position === 'fixed') {
@@ -2201,7 +2224,9 @@
     var currentNode = getParentNode(element);
 
     while (isHTMLElement(currentNode) && ['html', 'body'].indexOf(getNodeName(currentNode)) < 0) {
-      var css = getComputedStyle$1(currentNode);
+      var css = getComputedStyle$1(currentNode); // This is non-exhaustive but covers the most common CSS properties that
+      // create a containing block.
+      // https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
 
       if (css.transform !== 'none' || css.perspective !== 'none' || css.contain === 'paint' || ['transform', 'perspective'].indexOf(css.willChange) !== -1 || isFirefox && css.willChange === 'filter' || isFirefox && css.filter && css.filter !== 'none') {
         return currentNode;
@@ -2211,7 +2236,9 @@
     }
 
     return null;
-  }
+  } // Gets the closest ancestor positioned element. Handles some edge cases,
+  // such as table ancestors and cross browser bugs.
+
 
   function getOffsetParent(element) {
     var window = getWindow(element);
@@ -2292,7 +2319,8 @@
     var startDiff = popperOffsets[axis] - state.rects.reference[axis];
     var arrowOffsetParent = getOffsetParent(arrowElement);
     var clientSize = arrowOffsetParent ? axis === 'y' ? arrowOffsetParent.clientHeight || 0 : arrowOffsetParent.clientWidth || 0 : 0;
-    var centerToReference = endDiff / 2 - startDiff / 2; 
+    var centerToReference = endDiff / 2 - startDiff / 2; // Make sure the arrow doesn't overflow the popper if the center point is
+    // outside of the popper bounds
 
     var min = paddingObject[minProp];
     var max = clientSize - arrowRect[len] - paddingObject[maxProp];
@@ -2311,7 +2339,8 @@
 
     if (arrowElement == null) {
       return;
-    }
+    } // CSS selector
+
 
     if (typeof arrowElement === 'string') {
       arrowElement = state.elements.popper.querySelector(arrowElement);
@@ -2327,7 +2356,8 @@
     }
 
     state.elements.arrow = arrowElement;
-  }
+  } // eslint-disable-next-line import/no-unused-modules
+
 
   const arrow$1 = {
     name: 'arrow',
@@ -2348,7 +2378,9 @@
     right: 'auto',
     bottom: 'auto',
     left: 'auto'
-  };
+  }; // Round the offsets to the nearest suitable subpixel based on the DPR.
+  // Zooming can change the DPR, but it seems to report a value that will
+  // cleanly divide the values into the appropriate subpixels.
 
   function roundOffsetsByDPR(_ref) {
     var x = _ref.x,
@@ -5574,6 +5606,7 @@
       }
 
       tip.classList.remove(CLASS_NAME_SHOW$2); // If this is a touch-enabled device we remove the extra
+      // empty mouseover listeners we added for iOS support
 
       if ('ontouchstart' in document.documentElement) {
         [].concat(...document.body.children).forEach(element => EventHandler.off(element, 'mouseover', noop));
@@ -5593,7 +5626,8 @@
       if (this._popper !== null) {
         this._popper.update();
       }
-    }
+    } // Protected
+
 
     isWithContent() {
       return Boolean(this.getTitle());
@@ -5623,7 +5657,8 @@
       if (!content && templateElement) {
         templateElement.remove();
         return;
-      }
+      } // we use append for html objects to maintain js events
+
 
       this.setElementContent(templateElement, content);
     }
@@ -5634,7 +5669,7 @@
       }
 
       if (isElement$1(content)) {
-        content = getElement(content);
+        content = getElement(content); // content is a DOM node or a jQuery
 
         if (this._config.html) {
           if (content.parentNode !== element) {
@@ -5675,7 +5710,8 @@
       }
 
       return attachment;
-    }
+    } // Private
+
 
     _initializeOnDelegatedTarget(event, context) {
       return context || this.constructor.getOrCreateInstance(event.delegateTarget, this._getDelegateConfig());
@@ -5904,7 +5940,10 @@
         if (this.constructor.Default[key] !== this._config[key]) {
           config[key] = this._config[key];
         }
-      }
+      } // In the future can be replaced with:
+      // const keysWithDifferentValues = Object.entries(this._config).filter(entry => this.constructor.Default[entry[0]] !== this._config[entry[0]])
+      // `Object.fromEntries(keysWithDifferentValues)`
+
 
       return config;
     }
@@ -5945,7 +5984,8 @@
 
         this._popper = null;
       }
-    }
+    } // Static
+
 
     static jQueryInterface(config) {
       return this.each(function () {
@@ -5962,8 +6002,27 @@
     }
 
   }
+  /**
+   * ------------------------------------------------------------------------
+   * jQuery
+   * ------------------------------------------------------------------------
+   * add .Tooltip to jQuery only if jQuery is present
+   */
+
 
   defineJQueryPlugin(Tooltip);
+
+  /**
+   * --------------------------------------------------------------------------
+   * Bootstrap (v5.1.3): popover.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+   * --------------------------------------------------------------------------
+   */
+  /**
+   * ------------------------------------------------------------------------
+   * Constants
+   * ------------------------------------------------------------------------
+   */
 
   const NAME$3 = 'popover';
   const DATA_KEY$3 = 'bs.popover';
@@ -5993,6 +6052,11 @@
   };
   const SELECTOR_TITLE = '.popover-header';
   const SELECTOR_CONTENT = '.popover-body';
+  /**
+   * ------------------------------------------------------------------------
+   * Class Definition
+   * ------------------------------------------------------------------------
+   */
 
   class Popover extends Tooltip {
     // Getters
@@ -6010,7 +6074,7 @@
 
     static get DefaultType() {
       return DefaultType$2;
-    }
+    } // Overrides
 
 
     isWithContent() {
@@ -6021,7 +6085,8 @@
       this._sanitizeAndSetContent(tip, this.getTitle(), SELECTOR_TITLE);
 
       this._sanitizeAndSetContent(tip, this._getContent(), SELECTOR_CONTENT);
-    } 
+    } // Private
+
 
     _getContent() {
       return this._resolvePossibleFunction(this._config.content);
@@ -6029,7 +6094,8 @@
 
     _getBasicClassPrefix() {
       return CLASS_PREFIX;
-    }
+    } // Static
+
 
     static jQueryInterface(config) {
       return this.each(function () {
@@ -6046,8 +6112,27 @@
     }
 
   }
+  /**
+   * ------------------------------------------------------------------------
+   * jQuery
+   * ------------------------------------------------------------------------
+   * add .Popover to jQuery only if jQuery is present
+   */
+
 
   defineJQueryPlugin(Popover);
+
+  /**
+   * --------------------------------------------------------------------------
+   * Bootstrap (v5.1.3): scrollspy.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+   * --------------------------------------------------------------------------
+   */
+  /**
+   * ------------------------------------------------------------------------
+   * Constants
+   * ------------------------------------------------------------------------
+   */
 
   const NAME$2 = 'scrollspy';
   const DATA_KEY$2 = 'bs.scrollspy';
@@ -6078,6 +6163,11 @@
   const SELECTOR_DROPDOWN_TOGGLE$1 = '.dropdown-toggle';
   const METHOD_OFFSET = 'offset';
   const METHOD_POSITION = 'position';
+  /**
+   * ------------------------------------------------------------------------
+   * Class Definition
+   * ------------------------------------------------------------------------
+   */
 
   class ScrollSpy extends BaseComponent {
     constructor(element, config) {
@@ -6092,7 +6182,7 @@
       this.refresh();
 
       this._process();
-    }
+    } // Getters
 
 
     static get Default() {
@@ -6101,7 +6191,8 @@
 
     static get NAME() {
       return NAME$2;
-    }
+    } // Public
+
 
     refresh() {
       const autoMethod = this._scrollElement === this._scrollElement.window ? METHOD_OFFSET : METHOD_POSITION;
@@ -6134,7 +6225,7 @@
     dispose() {
       EventHandler.off(this._scrollElement, EVENT_KEY$2);
       super.dispose();
-    }
+    } // Private
 
 
     _getConfig(config) {
@@ -6210,7 +6301,8 @@
         SelectorEngine.findOne(SELECTOR_DROPDOWN_TOGGLE$1, link.closest(SELECTOR_DROPDOWN$1)).classList.add(CLASS_NAME_ACTIVE$1);
       } else {
         SelectorEngine.parents(link, SELECTOR_NAV_LIST_GROUP$1).forEach(listGroup => {
-
+          // Set triggered links parents as active
+          // With both <ul> and <nav> markup a parent is the previous sibling of any nav ancestor
           SelectorEngine.prev(listGroup, `${SELECTOR_NAV_LINKS}, ${SELECTOR_LIST_ITEMS}`).forEach(item => item.classList.add(CLASS_NAME_ACTIVE$1)); // Handle special case when .nav-link is inside .nav-item
 
           SelectorEngine.prev(listGroup, SELECTOR_NAV_ITEMS).forEach(navItem => {
@@ -6226,7 +6318,7 @@
 
     _clear() {
       SelectorEngine.find(SELECTOR_LINK_ITEMS, this._config.target).filter(node => node.classList.contains(CLASS_NAME_ACTIVE$1)).forEach(node => node.classList.remove(CLASS_NAME_ACTIVE$1));
-    }
+    } // Static
 
 
     static jQueryInterface(config) {
@@ -6246,12 +6338,36 @@
     }
 
   }
+  /**
+   * ------------------------------------------------------------------------
+   * Data Api implementation
+   * ------------------------------------------------------------------------
+   */
+
 
   EventHandler.on(window, EVENT_LOAD_DATA_API, () => {
     SelectorEngine.find(SELECTOR_DATA_SPY).forEach(spy => new ScrollSpy(spy));
   });
+  /**
+   * ------------------------------------------------------------------------
+   * jQuery
+   * ------------------------------------------------------------------------
+   * add .ScrollSpy to jQuery only if jQuery is present
+   */
 
   defineJQueryPlugin(ScrollSpy);
+
+  /**
+   * --------------------------------------------------------------------------
+   * Bootstrap (v5.1.3): tab.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+   * --------------------------------------------------------------------------
+   */
+  /**
+   * ------------------------------------------------------------------------
+   * Constants
+   * ------------------------------------------------------------------------
+   */
 
   const NAME$1 = 'tab';
   const DATA_KEY$1 = 'bs.tab';
@@ -6273,12 +6389,18 @@
   const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="tab"], [data-bs-toggle="pill"], [data-bs-toggle="list"]';
   const SELECTOR_DROPDOWN_TOGGLE = '.dropdown-toggle';
   const SELECTOR_DROPDOWN_ACTIVE_CHILD = ':scope > .dropdown-menu .active';
+  /**
+   * ------------------------------------------------------------------------
+   * Class Definition
+   * ------------------------------------------------------------------------
+   */
 
   class Tab extends BaseComponent {
-
+    // Getters
     static get NAME() {
       return NAME$1;
-    }
+    } // Public
+
 
     show() {
       if (this._element.parentNode && this._element.parentNode.nodeType === Node.ELEMENT_NODE && this._element.classList.contains(CLASS_NAME_ACTIVE)) {
@@ -6323,7 +6445,8 @@
       } else {
         complete();
       }
-    }
+    } // Private
+
 
     _activate(element, container, callback) {
       const activeElements = container && (container.nodeName === 'UL' || container.nodeName === 'OL') ? SelectorEngine.find(SELECTOR_ACTIVE_UL, container) : SelectorEngine.children(container, SELECTOR_ACTIVE);
@@ -6386,7 +6509,7 @@
       if (callback) {
         callback();
       }
-    }
+    } // Static
 
 
     static jQueryInterface(config) {
@@ -6404,6 +6527,11 @@
     }
 
   }
+  /**
+   * ------------------------------------------------------------------------
+   * Data Api implementation
+   * ------------------------------------------------------------------------
+   */
 
 
   EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
@@ -6418,8 +6546,26 @@
     const data = Tab.getOrCreateInstance(this);
     data.show();
   });
+  /**
+   * ------------------------------------------------------------------------
+   * jQuery
+   * ------------------------------------------------------------------------
+   * add .Tab to jQuery only if jQuery is present
+   */
 
   defineJQueryPlugin(Tab);
+
+  /**
+   * --------------------------------------------------------------------------
+   * Bootstrap (v5.1.3): toast.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+   * --------------------------------------------------------------------------
+   */
+  /**
+   * ------------------------------------------------------------------------
+   * Constants
+   * ------------------------------------------------------------------------
+   */
 
   const NAME = 'toast';
   const DATA_KEY = 'bs.toast';
@@ -6433,7 +6579,8 @@
   const EVENT_SHOW = `show${EVENT_KEY}`;
   const EVENT_SHOWN = `shown${EVENT_KEY}`;
   const CLASS_NAME_FADE = 'fade';
-  const CLASS_NAME_HIDE = 'hide';
+  const CLASS_NAME_HIDE = 'hide'; // @deprecated - kept here only for backwards compatibility
+
   const CLASS_NAME_SHOW = 'show';
   const CLASS_NAME_SHOWING = 'showing';
   const DefaultType = {
@@ -6446,6 +6593,11 @@
     autohide: true,
     delay: 5000
   };
+  /**
+   * ------------------------------------------------------------------------
+   * Class Definition
+   * ------------------------------------------------------------------------
+   */
 
   class Toast extends BaseComponent {
     constructor(element, config) {
@@ -6456,7 +6608,7 @@
       this._hasKeyboardInteraction = false;
 
       this._setListeners();
-    }
+    } // Getters
 
 
     static get DefaultType() {
@@ -6469,7 +6621,7 @@
 
     static get NAME() {
       return NAME;
-    }
+    } // Public
 
 
     show() {
@@ -6493,7 +6645,7 @@
         this._maybeScheduleHide();
       };
 
-      this._element.classList.remove(CLASS_NAME_HIDE);
+      this._element.classList.remove(CLASS_NAME_HIDE); // @deprecated
 
 
       reflow(this._element);
@@ -6517,7 +6669,7 @@
       }
 
       const complete = () => {
-        this._element.classList.add(CLASS_NAME_HIDE);
+        this._element.classList.add(CLASS_NAME_HIDE); // @deprecated
 
 
         this._element.classList.remove(CLASS_NAME_SHOWING);
@@ -6540,7 +6692,7 @@
       }
 
       super.dispose();
-    }
+    } // Private
 
 
     _getConfig(config) {
@@ -6624,9 +6776,21 @@
   }
 
   enableDismissTrigger(Toast);
+  /**
+   * ------------------------------------------------------------------------
+   * jQuery
+   * ------------------------------------------------------------------------
+   * add .Toast to jQuery only if jQuery is present
+   */
 
   defineJQueryPlugin(Toast);
 
+  /**
+   * --------------------------------------------------------------------------
+   * Bootstrap (v5.1.3): index.umd.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+   * --------------------------------------------------------------------------
+   */
   const index_umd = {
     Alert,
     Button,
@@ -6645,3 +6809,4 @@
   return index_umd;
 
 }));
+//# sourceMappingURL=bootstrap.bundle.js.map
