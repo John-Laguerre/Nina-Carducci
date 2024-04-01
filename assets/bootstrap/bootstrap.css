@@ -5988,6 +5988,8 @@ textarea.form-control-lg {
   display: none;
   float: left;
   width: 100%;
+  height: auto;
+  object-fit: cover;
   margin-right: -100%;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
