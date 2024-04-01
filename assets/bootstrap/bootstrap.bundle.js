@@ -2082,29 +2082,12 @@
     return placement.split('-')[0];
   }
 
-  // import { isHTMLElement } from './instanceOf';
-  function getBoundingClientRect(element, // eslint-disable-next-line unused-imports/no-unused-vars
+  function getBoundingClientRect(element,
   includeScale) {
 
     var rect = element.getBoundingClientRect();
     var scaleX = 1;
-    var scaleY = 1; // FIXME:
-    // `offsetWidth` returns an integer while `getBoundingClientRect`
-    // returns a float. This results in `scaleX` or `scaleY` being
-    // non-1 when it should be for elements that aren't a full pixel in
-    // width or height.
-    // if (isHTMLElement(element) && includeScale) {
-    //   const offsetHeight = element.offsetHeight;
-    //   const offsetWidth = element.offsetWidth;
-    //   // Do not attempt to divide by 0, otherwise we get `Infinity` as scale
-    //   // Fallback to 1 in case both values are `0`
-    //   if (offsetWidth > 0) {
-    //     scaleX = rect.width / offsetWidth || 1;
-    //   }
-    //   if (offsetHeight > 0) {
-    //     scaleY = rect.height / offsetHeight || 1;
-    //   }
-    // }
+    var scaleY = 1;
 
     return {
       width: rect.width / scaleX,
@@ -2144,19 +2127,18 @@
   }
 
   function contains(parent, child) {
-    var rootNode = child.getRootNode && child.getRootNode(); // First, attempt with faster native method
+    var rootNode = child.getRootNode && child.getRootNode();
 
     if (parent.contains(child)) {
       return true;
-    } // then fallback to custom implementation with Shadow DOM support
+    } 
     else if (rootNode && isShadowRoot(rootNode)) {
         var next = child;
 
         do {
           if (next && parent.isSameNode(next)) {
             return true;
-          } // $FlowFixMe[prop-missing]: need a better way to handle this...
-
+          } 
 
           next = next.parentNode || next.host;
         } while (next);
@@ -2175,8 +2157,7 @@
   }
 
   function getDocumentElement(element) {
-    // $FlowFixMe[incompatible-return]: assume body is always available
-    return ((isElement(element) ? element.ownerDocument : // $FlowFixMe[prop-missing]
+    return ((isElement(element) ? element.ownerDocument :
     element.document) || window.document).documentElement;
   }
 
@@ -2185,13 +2166,10 @@
       return element;
     }
 
-    return (// this is a quicker (but less type safe) way to save quite some bytes from the bundle
-      // $FlowFixMe[incompatible-return]
-      // $FlowFixMe[prop-missing]
-      element.assignedSlot || // step into the shadow DOM of the parent of a slotted node
-      element.parentNode || ( // DOM Element detected
-      isShadowRoot(element) ? element.host : null) || // ShadowRoot detected
-      // $FlowFixMe[incompatible-call]: HTMLElement is a Node
+    return (
+      element.assignedSlot ||
+      element.parentNode || (
+      isShadowRoot(element) ? element.host : null) ||
       getDocumentElement(element)
 
     );
@@ -2314,8 +2292,7 @@
     var startDiff = popperOffsets[axis] - state.rects.reference[axis];
     var arrowOffsetParent = getOffsetParent(arrowElement);
     var clientSize = arrowOffsetParent ? axis === 'y' ? arrowOffsetParent.clientHeight || 0 : arrowOffsetParent.clientWidth || 0 : 0;
-    var centerToReference = endDiff / 2 - startDiff / 2; // Make sure the arrow doesn't overflow the popper if the center point is
-    // outside of the popper bounds
+    var centerToReference = endDiff / 2 - startDiff / 2; 
 
     var min = paddingObject[minProp];
     var max = clientSize - arrowRect[len] - paddingObject[maxProp];
@@ -2334,8 +2311,7 @@
 
     if (arrowElement == null) {
       return;
-    } // CSS selector
-
+    }
 
     if (typeof arrowElement === 'string') {
       arrowElement = state.elements.popper.querySelector(arrowElement);
@@ -2351,8 +2327,7 @@
     }
 
     state.elements.arrow = arrowElement;
-  } // eslint-disable-next-line import/no-unused-modules
-
+  }
 
   const arrow$1 = {
     name: 'arrow',
@@ -2373,9 +2348,7 @@
     right: 'auto',
     bottom: 'auto',
     left: 'auto'
-  }; // Round the offsets to the nearest suitable subpixel based on the DPR.
-  // Zooming can change the DPR, but it seems to report a value that will
-  // cleanly divide the values into the appropriate subpixels.
+  };
 
   function roundOffsetsByDPR(_ref) {
     var x = _ref.x,
